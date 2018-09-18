@@ -27,13 +27,13 @@ def train(sess,
           meta_iters=400000,
           eval_inner_batch_size=5,
           eval_inner_iters=50,
-          eval_interval=10,
+          eval_interval=1000,
           weight_decay_rate=1,
           time_deadline=None,
           train_shots=None,
           transductive=False,
           reptile_fn=Reptile,
-          log_fn=print):
+          metatransfer=False):
     """
     Train a model on a dataset.
     """
@@ -51,26 +51,34 @@ def train(sess,
     tf.global_variables_initializer().run()
     sess.run(tf.global_variables_initializer())
     for i in range(meta_iters):
-        frac_done = i / meta_iters
+        frac_done = float(i) / meta_iters
         cur_meta_step_size = frac_done * meta_step_size_final + (1 - frac_done) * meta_step_size
-        reptile.train_step(train_set, model.input_ph, model.label_ph, model.minimize_op,
-                           num_classes=num_classes, num_shots=(train_shots or num_shots),
-                           inner_batch_size=inner_batch_size, inner_iters=inner_iters,
-                           replacement=replacement,
-                           meta_step_size=cur_meta_step_size, meta_batch_size=meta_batch_size)
+        if metatransfer:
+            reptile.train_metatransfer_step(train_set, model.input_ph, model.label_ph, model.real_label,
+                               model.minimize_op_metalearner, model.minimize_op_classifier,
+                               num_classes=num_classes, num_shots=(train_shots or num_shots),
+                               inner_batch_size=inner_batch_size, inner_iters=inner_iters,
+                               replacement=replacement,
+                               meta_step_size=cur_meta_step_size, meta_batch_size=meta_batch_size)
+        else:
+            reptile.train_step(train_set, model.input_ph, model.label_ph, model.minimize_op_metalearner,
+                               num_classes=num_classes, num_shots=(train_shots or num_shots),
+                               inner_batch_size=inner_batch_size, inner_iters=inner_iters,
+                               replacement=replacement,
+                               meta_step_size=cur_meta_step_size, meta_batch_size=meta_batch_size)
         if i % eval_interval == 0:
             accuracies = []
             for dataset, writer in [(train_set, train_writer), (test_set, test_writer)]:
                 correct = reptile.evaluate(dataset, model.input_ph, model.label_ph,
-                                           model.minimize_op, model.predictions,
+                                           model.minimize_op_metalearner, model.predictions,
                                            num_classes=num_classes, num_shots=num_shots,
                                            inner_batch_size=eval_inner_batch_size,
                                            inner_iters=eval_inner_iters, replacement=replacement)
                 summary = sess.run(merged, feed_dict={accuracy_ph: correct/num_classes})
                 writer.add_summary(summary, i)
                 writer.flush()
-                accuracies.append(correct / num_classes)
-            log_fn('batch %d: train=%f test=%f' % (i, accuracies[0], accuracies[1]))
+                accuracies.append(float(correct) / num_classes)
+            print('batch %d: train=%f test=%f' % (i, accuracies[0], accuracies[1]))
         if i % 100 == 0 or i == meta_iters-1:
             saver.save(sess, os.path.join(save_dir, 'model.ckpt'), global_step=i)
         if time_deadline is not None and time.time() > time_deadline:

@@ -1,0 +1,18 @@
+/usr/lib/python2.7/dist-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+usage: run_miniimagenet.py [-h] [--pretrained] [--seed SEED]
+                           [--checkpoint CHECKPOINT] [--classes CLASSES]
+                           [--shots SHOTS] [--train-shots TRAIN_SHOTS]
+                           [--inner-batch INNER_BATCH]
+                           [--inner-iters INNER_ITERS] [--replacement]
+                           [--learning-rate LEARNING_RATE]
+                           [--meta-step META_STEP]
+                           [--meta-step-final META_STEP_FINAL]
+                           [--meta-batch META_BATCH] [--meta-iters META_ITERS]
+                           [--eval-batch EVAL_BATCH] [--eval-iters EVAL_ITERS]
+                           [--eval-samples EVAL_SAMPLES]
+                           [--eval-interval EVAL_INTERVAL]
+                           [--weight-decay WEIGHT_DECAY] [--transductive]
+                           [--foml] [--foml-tail FOML_TAIL] [--sgd]
+                           [--metatransfer] [--gpu GPU]
+run_miniimagenet.py: error: unrecognized arguments: 0

@@ -27,8 +27,8 @@ def evaluate(sess,
     total_correct = 0
     for _ in range(num_samples):
         total_correct += reptile.evaluate(dataset, model.input_ph, model.label_ph,
-                                          model.minimize_op, model.predictions,
+                                          model.minimize_op_metalearner, model.predictions,
                                           num_classes=num_classes, num_shots=num_shots,
                                           inner_batch_size=eval_inner_batch_size,
                                           inner_iters=eval_inner_iters, replacement=replacement)
-    return total_correct / (num_samples * num_classes)
+    return float(total_correct) / (num_samples * num_classes)

@@ -1,7 +1,8 @@
 # Custom output files
 model_checkpoint
 data
-
+logs
+miniimnet_reptile*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
